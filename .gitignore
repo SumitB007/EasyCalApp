@@ -1,0 +1,31 @@
+# Virtual environments
+venv/
+env/
+.env
+
+# Large ML models and datasets
+*.h5
+*.weights
+*.pb
+
+# Databases
+*.sqlite
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Node
+node_modules/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
