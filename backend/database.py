@@ -8,7 +8,9 @@ load_dotenv()
 # We default to a local SQLite database for development to avoid needing a local Postgres server.
 # To switch to Postgres in production, simply set DATABASE_URL=postgresql://user:password@localhost/dbname in a .env file.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'easycal.db')}")
+DB_PATH = os.path.join(BASE_DIR, "data", "easycal.db")
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DB_PATH}")
 
 # SQLite needs check_same_thread=False since FastAPI can use multiple threads
 connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
