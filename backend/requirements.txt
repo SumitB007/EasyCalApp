@@ -10,7 +10,7 @@ sqladmin==0.25.1
 python-dotenv==1.2.1
 pillow==11.3.0
 numpy==1.26.4
-opencv-python-headless==4.13.0.92
+opencv-python-headless==4.9.0.80
 tensorflow==2.15.0
 keras==2.15.0
 h5py==3.14.0

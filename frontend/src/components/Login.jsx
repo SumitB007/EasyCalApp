@@ -50,7 +50,7 @@ const Login = () => {
 
   return (
     <div className="auth-container">
-      <motion.div 
+      <motion.div
         className="glass-panel auth-card"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

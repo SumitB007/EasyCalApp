@@ -29,10 +29,10 @@ const Statistics = () => {
 
     // Fetch user and logs in parallel
     Promise.all([
-      fetch('http://0.0.0.0:8000/users/me', {
+      fetch('http://3.95.177.34:8000/users/me', {
         headers: { 'Authorization': `Bearer ${token}` }
       }).then(res => res.json()),
-      fetch('http://0.0.0.0:8000/logs', {
+      fetch('http://3.95.177.34:8000/logs', {
         headers: { 'Authorization': `Bearer ${token}` }
       }).then(res => res.json())
     ])
