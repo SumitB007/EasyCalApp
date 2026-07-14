@@ -26,7 +26,7 @@ const Login = () => {
     loginFormData.append('password', formData.password);
 
     try {
-      const response = await fetch('http://0.0.0.0:8000/login', {
+      const response = await fetch('http://3.95.177.34:8000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: loginFormData
