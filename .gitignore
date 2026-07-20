@@ -3,8 +3,7 @@ venv/
 env/
 .env
 
-# Large ML models and datasets
-*.h5
+# Large ML models and datasets (tracked by Git LFS)
 *.weights
 *.pb
 
