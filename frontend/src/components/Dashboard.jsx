@@ -32,7 +32,7 @@ const Dashboard = () => {
     }
 
     // Fetch user profile
-    fetch('http://3.95.177.34:8000/users/me', {
+    fetch('http://52.91.170.19:8000/users/me', {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => {
@@ -49,7 +49,7 @@ const Dashboard = () => {
       });
 
     // Fetch supported foods
-    fetch('http://3.95.177.34:8000/foods')
+    fetch('http://52.91.170.19:8000/foods')
       .then(res => res.json())
       .then(data => {
         if (data && data.supported_foods) {
@@ -96,7 +96,7 @@ const Dashboard = () => {
     formData.append('image2', sideImage);
 
     try {
-      const response = await fetch('http://3.95.177.34:8000/upload', {
+      const response = await fetch('http://52.91.170.19:8000/upload', {
         method: 'POST',
         body: formData,
       });
@@ -123,7 +123,7 @@ const Dashboard = () => {
 
       try {
         const token = localStorage.getItem('token');
-        await fetch('http://3.95.177.34:8000/logs', {
+        await fetch('http://52.91.170.19:8000/logs', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

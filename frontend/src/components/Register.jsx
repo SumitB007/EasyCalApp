@@ -28,7 +28,7 @@ const Register = () => {
     setError('');
 
     try {
-      const response = await fetch('http://3.95.177.34:8000/register', {
+      const response = await fetch('http://52.91.170.19:8000/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ const Register = () => {
       loginFormData.append('username', formData.email); // FastAPI OAuth2 expects 'username' field to hold the email
       loginFormData.append('password', formData.password);
 
-      const loginResponse = await fetch('http://3.95.177.34:8000/login', {
+      const loginResponse = await fetch('http://52.91.170.19:8000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: loginFormData
