@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - /root/apps/models/mask_rcnn_food.h5:/app/mask_rcnn_food.h5:ro
     restart: always
 
   frontend:
