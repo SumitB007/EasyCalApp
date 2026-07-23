@@ -32,7 +32,7 @@ class FoodConfig(Config):
     MASK_SHAPE = [28, 28]
     RPN_BBOX_STD_DEV = np.array([0.1, 0.1, 0.2, 0.2])
     BBOX_STD_DEV = np.array([0.1, 0.1, 0.2, 0.2])
-    DETECTION_MIN_CONFIDENCE = 0.5
+    DETECTION_MIN_CONFIDENCE = 0.7
     DETECTION_NMS_THRESHOLD = 0.3
     LEARNING_RATE = 0.0001
     LEARNING_MOMENTUM = 0.9
@@ -123,43 +123,56 @@ def predict_calories(inf_model, top_image_path, side_image_path):
     with Image.open(top_image_path) as img:
         img = img.convert('RGB')
         arr_top = np.array(img)
+        image_area_top = arr_top.shape[0] * arr_top.shape[1]
     results_top = inf_model.detect([arr_top], verbose=0)[0]
     
     with Image.open(side_image_path) as img:
         img = img.convert('RGB')
         arr_side = np.array(img)
+        image_area_side = arr_side.shape[0] * arr_side.shape[1]
     results_side = inf_model.detect([arr_side], verbose=0)[0]
     
     _, coin_top_pixels, food_top_pixels, _ = get_pixel_areas(results_top)
     food_class_name, coin_side_pixels, food_side_pixels, food_score = get_pixel_areas(results_side)
     
+    # Debug: log what was detected
+    print(f"[DEBUG] Top image:  food_pixels={food_top_pixels}, coin_pixels={coin_top_pixels}, image_area={image_area_top}")
+    print(f"[DEBUG] Side image: food_class={food_class_name}, food_pixels={food_side_pixels}, coin_pixels={coin_side_pixels}, score={food_score:.2f}, image_area={image_area_side}")
+
     if not food_class_name:
         food_class_name, _, _, food_score = get_pixel_areas(results_top)
         
     if not food_class_name or food_class_name not in FOOD_UNIT_CALORIE:
         raise ValueError("No valid food item detected in the image.")
         
-    coin_real_area = 19.625
+    coin_real_area = 19.625  # reference area of the calibration coin
+
+    # If coin not detected in an image, fall back to a default assumed coin pixel size.
+    # Default assumes the coin covers ~1.2% of a typical phone image (tuned empirically).
+    DEFAULT_COIN_PIXELS_TOP  = max(1, int(image_area_top  * 0.012))
+    DEFAULT_COIN_PIXELS_SIDE = max(1, int(image_area_side * 0.012))
+
+    effective_coin_top  = coin_top_pixels  if coin_top_pixels  > 0 else DEFAULT_COIN_PIXELS_TOP
+    effective_coin_side = coin_side_pixels if coin_side_pixels > 0 else DEFAULT_COIN_PIXELS_SIDE
     
-    # Be fault-tolerant: use whichever image detected the coin
-    # If neither detected a coin, raise an error
-    if coin_top_pixels == 0 and coin_side_pixels == 0:
-        raise ValueError("Calibration coin not detected in either image. Please ensure a coin is visible in at least one photo.")
-    
-    # Calculate area from whichever views have coin detected
+    coin_detected = (coin_top_pixels > 0 or coin_side_pixels > 0)
+    if not coin_detected:
+        print("[DEBUG] No coin detected in either image — using default pixel scale for estimation.")
+
+    # Calculate volume from both views
     areas = []
-    if coin_top_pixels > 0 and food_top_pixels > 0:
-        food_top_area = coin_real_area * food_top_pixels / coin_top_pixels
+    if food_top_pixels > 0:
+        food_top_area = coin_real_area * food_top_pixels / effective_coin_top
         radius_top = math.sqrt(food_top_area / math.pi)
         areas.append((4/3) * math.pi * radius_top**3)
     
-    if coin_side_pixels > 0 and food_side_pixels > 0:
-        food_side_area = coin_real_area * food_side_pixels / coin_side_pixels
+    if food_side_pixels > 0:
+        food_side_area = coin_real_area * food_side_pixels / effective_coin_side
         radius_side = math.sqrt(food_side_area / math.pi)
         areas.append((4/3) * math.pi * radius_side**3)
     
     if not areas:
-        raise ValueError("Food item not detected clearly in images with coin. Please retake photos.")
+        raise ValueError("Food item not detected clearly in the provided images. Please retake photos.")
     
     threshold = FOOD_VOLUME_FACTOR.get(food_class_name, 10)
     avg_volume = sum(areas) / len(areas)
@@ -171,5 +184,6 @@ def predict_calories(inf_model, top_image_path, side_image_path):
         "food_item": food_class_name,
         "volume_cm3": round(avg_volume, 2),
         "calories": round(calories, 2),
-        "confidence_score": round(food_score, 2)
+        "confidence_score": round(food_score, 2),
+        "coin_detected": coin_detected
     }
