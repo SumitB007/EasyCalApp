@@ -113,9 +113,11 @@ def get_pixel_areas(results):
         if class_name == 'coin':
             coin_pixels = np.sum(mask)
         elif class_name != 'BG':
-            food_class_out = class_name
-            food_pixels = np.sum(mask)
-            food_score = float(score)
+            # Only update if this detection has a higher confidence score
+            if float(score) > food_score:
+                food_class_out = class_name
+                food_pixels = np.sum(mask)
+                food_score = float(score)
             
     return food_class_out, coin_pixels, food_pixels, food_score
 
