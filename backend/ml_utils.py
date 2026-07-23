@@ -32,7 +32,7 @@ class FoodConfig(Config):
     MASK_SHAPE = [28, 28]
     RPN_BBOX_STD_DEV = np.array([0.1, 0.1, 0.2, 0.2])
     BBOX_STD_DEV = np.array([0.1, 0.1, 0.2, 0.2])
-    DETECTION_MIN_CONFIDENCE = 0.7
+    DETECTION_MIN_CONFIDENCE = 0.5
     DETECTION_NMS_THRESHOLD = 0.3
     LEARNING_RATE = 0.0001
     LEARNING_MOMENTUM = 0.9
@@ -141,20 +141,28 @@ def predict_calories(inf_model, top_image_path, side_image_path):
         
     coin_real_area = 19.625
     
-    if coin_side_pixels == 0 or coin_top_pixels == 0:
-        raise ValueError("Calibration coin not detected in both images.")
+    # Be fault-tolerant: use whichever image detected the coin
+    # If neither detected a coin, raise an error
+    if coin_top_pixels == 0 and coin_side_pixels == 0:
+        raise ValueError("Calibration coin not detected in either image. Please ensure a coin is visible in at least one photo.")
     
-    food_side_area = coin_real_area * food_side_pixels / coin_side_pixels
-    food_top_area = coin_real_area * food_top_pixels / coin_top_pixels
+    # Calculate area from whichever views have coin detected
+    areas = []
+    if coin_top_pixels > 0 and food_top_pixels > 0:
+        food_top_area = coin_real_area * food_top_pixels / coin_top_pixels
+        radius_top = math.sqrt(food_top_area / math.pi)
+        areas.append((4/3) * math.pi * radius_top**3)
     
-    radius_side_view = math.sqrt(food_side_area / math.pi)
-    radius_top_view = math.sqrt(food_top_area / math.pi)
+    if coin_side_pixels > 0 and food_side_pixels > 0:
+        food_side_area = coin_real_area * food_side_pixels / coin_side_pixels
+        radius_side = math.sqrt(food_side_area / math.pi)
+        areas.append((4/3) * math.pi * radius_side**3)
     
-    volume_side_view = (4/3) * math.pi * radius_side_view**3
-    volume_top_view = (4/3) * math.pi * radius_top_view**3
+    if not areas:
+        raise ValueError("Food item not detected clearly in images with coin. Please retake photos.")
     
     threshold = FOOD_VOLUME_FACTOR.get(food_class_name, 10)
-    avg_volume = (volume_side_view + volume_top_view) / 2
+    avg_volume = sum(areas) / len(areas)
     avg_volume /= threshold
     
     calories = avg_volume * FOOD_UNIT_CALORIE[food_class_name]
