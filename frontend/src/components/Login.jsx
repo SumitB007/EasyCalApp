@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
+import API_BASE_URL from '../config';
 import './Auth.css';
 
 const Login = () => {
@@ -26,7 +27,7 @@ const Login = () => {
     loginFormData.append('password', formData.password);
 
     try {
-      const response = await fetch('http://52.91.170.19:8000/login', {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: loginFormData

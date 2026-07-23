@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import ImageUploader from './ImageUploader';
 import ResultCard from './ResultCard';
+import API_BASE_URL from '../config';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const Dashboard = () => {
     }
 
     // Fetch user profile
-    fetch('http://52.91.170.19:8000/users/me', {
+    fetch(`${API_BASE_URL}/users/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => {
@@ -49,7 +50,7 @@ const Dashboard = () => {
       });
 
     // Fetch supported foods
-    fetch('http://52.91.170.19:8000/foods')
+    fetch(`${API_BASE_URL}/foods`)
       .then(res => res.json())
       .then(data => {
         if (data && data.supported_foods) {
@@ -96,7 +97,7 @@ const Dashboard = () => {
     formData.append('image2', sideImage);
 
     try {
-      const response = await fetch('http://52.91.170.19:8000/upload', {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -123,7 +124,7 @@ const Dashboard = () => {
 
       try {
         const token = localStorage.getItem('token');
-        await fetch('http://52.91.170.19:8000/logs', {
+        await fetch(`${API_BASE_URL}/logs`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

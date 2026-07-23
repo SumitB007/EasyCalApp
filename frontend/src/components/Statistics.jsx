@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../config';
 import {
   BarChart,
   Bar,
@@ -29,10 +30,10 @@ const Statistics = () => {
 
     // Fetch user and logs in parallel
     Promise.all([
-      fetch('http://52.91.170.19:8000/users/me', {
+      fetch(`${API_BASE_URL}/users/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       }).then(res => res.json()),
-      fetch('http://52.91.170.19:8000/logs', {
+      fetch(`${API_BASE_URL}/logs`, {
         headers: { 'Authorization': `Bearer ${token}` }
       }).then(res => res.json())
     ])
